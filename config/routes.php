@@ -42,6 +42,9 @@ use Cake\Routing\Router;
 Router::defaultRouteClass('DashedRoute');
 
 Router::scope('/', function ($routes) {
+
+    $routes->extensions(['json','xml']);
+    $routes->resources('Recipes');
     /**
      * Here, we are connecting '/' (base path) to a controller called 'Pages',
      * its action called 'display', and we pass a param to select the view file
@@ -77,4 +80,5 @@ Router::scope('/', function ($routes) {
  * Load all plugin routes.  See the Plugin documentation on
  * how to customize the loading of plugin routes.
  */
+
 Plugin::routes();

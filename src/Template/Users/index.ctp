@@ -18,13 +18,14 @@
               <div class="box">
                 <div class="box-header">
                   <h3 class="box-title">List of Users</h3>
+                  <?= $this->Html->link('Add User', ['action' => 'add'],['class'=>'btn btn-info btn-flat pull-right']) ?>
                 </div><!-- /.box-header -->
                 <div class="box-body">
                   <table id="example1" class="table table-bordered table-striped">
                     <thead>
                       <tr>
                         <th>Name</th>
-                        <th>Score</th>
+                        <th>Email</th>
                         <th>Created</th>
                         <th>Actions</th>
                       </tr>
@@ -32,10 +33,14 @@
                     <tbody>
                   <?php foreach ($users as $key => $value) {?>
                       <tr>
-                        <td><?php echo $value->name ?></td>
-                        <td><?php echo '1000'  ?></td>
-                        <td><?php echo $value->created ?></td>
-                        <td><a href="<?php echo $this->request->webroot?>users/edit/<?php echo $value->id?>">Edit</a> | <a href="<?php echo $this->request->webroot?>users/delete/<?php echo $value->id?>">Delete</a></td>
+                        <td><?php echo $value->name; ?></td>
+                        <td><?php echo $value->username;  ?></td>
+                        <td><?php echo $value->created; ?></td>
+                        <td>
+                          <?= $this->Html->link('Edit', ['action' => 'edit', $value->id]) ?>
+                          |  
+                          <?= $this->Form->postLink('Delete',['action' => 'delete', $value->id],['confirm' => 'Are you sure?']) ?>
+                        </td>
                       </tr>
                   <?php } ?>
                     </tbody>

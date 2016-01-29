@@ -18,7 +18,8 @@ use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
 use Cake\Network\Exception\NotFoundException;
 use Cake\View\Exception\MissingTemplateException;
-
+use Cake\Event\Event;
+use Cake\Controller\Component\RequestHandlerComponent;
 /**
  * Static content controller
  *
@@ -29,9 +30,15 @@ use Cake\View\Exception\MissingTemplateException;
 class UsersController extends AppController
 {
 
-	/*public function beforeFilter(){
-		$this->Auth->allow(['index']);
-	}*/
+    public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('RequestHandler');
+    }
+
+	public function beforeFilter(Event $event){
+		$this->Auth->allow(['index','view']);
+	}
 
     /**
      * Dashboard
@@ -51,9 +58,34 @@ class UsersController extends AppController
      *   be found or \Cake\View\Exception\MissingTemplateException in debug mode.
      */
     public function index(){
-    	$this->set('title','Title');
-      	$users = $this->Users->find('all');
+        $this->set('title','Title');
+        $users = $this->Users->find('all');
         $this->set(compact('users'));
+
+    }
+    /**
+     * ADD USER
+     *
+     * @return void|\Cake\Network\Response
+     * @throws \Cake\Network\Exception\NotFoundException When the view file could not
+     *   be found or \Cake\View\Exception\MissingTemplateException in debug mode.
+     */
+    public function add(){
+    	$this->set('title','Title');
+        if ($this->request->is('post')){
+            $data = $this->request->data;
+
+            $users = TableRegistry::get('Users');
+            $result = $users->newEntity($data);
+            if($users->save($result)){
+                $this->Flash->success(__('The user has been saved.'));
+                return $this->redirect(['action' => 'index']);
+            }else{
+                $this->Flash->error(__('Unable to add the user.'));
+                return $this->redirect(['action' => 'add ']);
+            }
+            
+        }
     } 
     /**
      * Edit User
@@ -62,9 +94,35 @@ class UsersController extends AppController
      * @throws \Cake\Network\Exception\NotFoundException When the view file could not
      *   be found or \Cake\View\Exception\MissingTemplateException in debug mode.
      */
-    public function edit(){
-    	$this->set('title','Title');
+    public function edit($id = null){
+        $this->set('title','Title');
+        $user = $this->Users->get($id);
+        if ($this->request->is(['post', 'put'])) {
+            $this->Users->patchEntity($user, $this->request->data);
+            if ($this->Users->save($user)) {
+                $this->Flash->success(__('User has been updated.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to update your user.'));
+        }
+
+        $this->set('user', $user);
     } 
+    /**
+     * Delete User
+     *
+     * @return void|\Cake\Network\Response
+     * @throws \Cake\Network\Exception\NotFoundException When the view file could not
+     *   be found or \Cake\View\Exception\MissingTemplateException in debug mode.
+     */
+    public function delete($id){
+        $this->request->allowMethod(['post', 'delete']);
+        $user = $this->Users->get($id);
+        if ($this->Users->delete($user)) {
+            $this->Flash->success(__('The user with id: {0} has been deleted.', h($id)));
+            return $this->redirect(['action' => 'index']);
+        }
+    }
     /**
      * Login
      *
@@ -91,5 +149,4 @@ class UsersController extends AppController
     public function logout(){
         return $this->redirect($this->Auth->logout());
     }
-
 }
